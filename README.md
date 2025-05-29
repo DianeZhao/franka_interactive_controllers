@@ -9,32 +9,32 @@ Besides [franka_ros](https://frankaemika.github.io/docs/franka_ros.html) and by 
 To install this repo and all its dependencies do the following steps:
 * In your catkin src directory clone the repository
 ```
-$ git clone https://github.com/nbfigueroa/franka_interactive_controllers.git
+git clone https://github.com/nbfigueroa/franka_interactive_controllers.git
 ```
 * wstool gets all other git repository dependencies, after the following steps you should see extra catkin 
   packages in your src directory.
 ```
-$  wstool init
-$  wstool merge franka_interactive_controllers/dependencies.rosinstall 
-$  wstool up 
+wstool init
+wstool merge franka_interactive_controllers/dependencies.rosinstall 
+wstool up 
 ```
 * Query and installs all libraries and packages 
 ```
-$ rosdep install --from-paths . --ignore-src --rosdistro <your-ros-distro> 
+rosdep install --from-paths . --ignore-src --rosdistro <your-ros-distro> 
 ```
 
 * Install some additional python dependencies
 ```
-$ sudo apt install python3-psutil python3-tkinter
+sudo apt install python3-psutil python3-tkinter
 ```
 
 * Finally complie
 ```bash
-  $ cd ~/catkin_ws
-  $ catkin_make
-  $ source devel/setup.bash
-  $ catkin_make
-  $ rospack profile
+cd ~/catkin_ws
+catkin_make
+source devel/setup.bash
+catkin_make
+rospack profile
 ```
  You might need to source the `./bashrc` file and compile again if the first compliation could not find some of the in-house dependencies. If `roscd` doesn't find the compiled packages run `rospack profile`.
  
