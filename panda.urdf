@@ -299,7 +299,7 @@
   <joint name="panda_link8_to_extra_link" type="fixed">
     <parent link="panda_link8"/>
     <child link="panda_EE"/>
-    <origin xyz="0 0 0.134" rpy="0 0 -0.7854"/>  <!-- -45° around Z -->
+    <origin xyz="0 0 0.1034" rpy="0 0 -0.785398"/>  <!-- -45° around Z -->
   </joint>
 
   <!-- sub-link defining detailed meshes for collision with environment -->
