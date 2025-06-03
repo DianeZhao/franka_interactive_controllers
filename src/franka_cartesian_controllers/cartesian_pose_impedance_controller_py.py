@@ -10,7 +10,7 @@ import pinocchio as pin
 import modern_robotics as mr  # Must be installed separately
 from geometry_msgs.msg import PoseStamped
 
-JOINT_SIZE = 9 #7+2
+JOINT_SIZE = 7 #7+2
 gravity = np.array([0.0, 0.0, -9.8])
 urdf_path = "/home/danningzhao/franka-impedance-ws/src/franka_interactive_controllers/panda.urdf"
 FRAME_NAME = "panda_EE"
@@ -18,23 +18,30 @@ JOINTS_TO_LOCK = ["panda_finger_joint1", "panda_finger_joint2"]
 DEFAULT_CONFIGURATION = np.array([0, -0.151628, 0,
                                   -2.160299,0.0063, 2.0304,
                                   0.8428, 0.01, 0.01])
+DEFAULT_CONFIGURATION_REDUCED = np.array([0, -0.151628, 0,
+                                  -2.160299,0.0063, 2.0304,
+                                  0.8428])
 
 class ForceControlClientSubscriber:
     def __init__(self):
         
         #model = pin.buildModelsFromUrdf(urdf_path) returns a tuple, kinematic model, collsision model and visual model
         #########################USE PINnOCHIO#######################################
-        self.model = pin.buildModelFromUrdf(urdf_path) #only kinematic
-        self.data = self.model.createData()
-        # self.locked_joint_ids = [self.model.getJointId(name) for name in JOINTS_TO_LOCK]
+        self.original_model = pin.buildModelFromUrdf(urdf_path) #only kinematic
+        self.original_data = self.original_model.createData()
+        self.locked_joint_ids = [self.original_model.getJointId(name) for name in JOINTS_TO_LOCK]
         # self.model = pin.buildReducedModel(self.original_model, self.locked_joint_ids, DEFAULT_CONFIGURATION)
-
+        self.model = pin.buildReducedModel(self.original_model, self.locked_joint_ids, DEFAULT_CONFIGURATION)
+        self.data = self.model.createData()
+        frame_id = self.model.getFrameId(FRAME_NAME)
+        
+        
         self.frame_id = self.model.getFrameId(FRAME_NAME)
         
-        self.joint_position = DEFAULT_CONFIGURATION #np.zeros(JOINT_SIZE)
+        self.joint_position = DEFAULT_CONFIGURATION_REDUCED #np.zeros(JOINT_SIZE)
         self.joint_velocity = np.zeros(JOINT_SIZE)
 
-        self.thetalist = DEFAULT_CONFIGURATION#np.zeros(JOINT_SIZE)#current state
+        self.thetalist = DEFAULT_CONFIGURATION_REDUCED#np.zeros(JOINT_SIZE)#current state
         self.dthetalist = np.zeros(JOINT_SIZE)
         self.ddthetalist = np.zeros(JOINT_SIZE)
 
@@ -90,26 +97,26 @@ class ForceControlClientSubscriber:
 
     def panda_callback(self, msg):
         
-        self.joint_position = np.array([
-            msg.position[0], msg.position[1], msg.position[2],
-            msg.position[3], msg.position[4], msg.position[5],
-            msg.position[6], msg.position[7], msg.position[8]
-        ])
-        self.joint_velocity = np.array([
-            msg.velocity[0], msg.velocity[1], msg.velocity[2],
-            msg.velocity[3], msg.velocity[4], msg.velocity[5],
-            msg.velocity[6], msg.velocity[7], msg.velocity[8]
-        ])
         # self.joint_position = np.array([
         #     msg.position[0], msg.position[1], msg.position[2],
         #     msg.position[3], msg.position[4], msg.position[5],
-        #     msg.position[6]
+        #     msg.position[6], msg.position[7], msg.position[8]
         # ])
         # self.joint_velocity = np.array([
         #     msg.velocity[0], msg.velocity[1], msg.velocity[2],
         #     msg.velocity[3], msg.velocity[4], msg.velocity[5],
-        #     msg.velocity[6]
+        #     msg.velocity[6], msg.velocity[7], msg.velocity[8]
         # ])
+        self.joint_position = np.array([
+            msg.position[0], msg.position[1], msg.position[2],
+            msg.position[3], msg.position[4], msg.position[5],
+            msg.position[6]
+        ])
+        self.joint_velocity = np.array([
+            msg.velocity[0], msg.velocity[1], msg.velocity[2],
+            msg.velocity[3], msg.velocity[4], msg.velocity[5],
+            msg.velocity[6]
+        ])
         
     def desired_pose_callback(self, msg: PoseStamped):
         # Extract translation
